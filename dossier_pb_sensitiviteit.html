@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Het Dossier · Assess For Success</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --teal:#3B938B;
+  --teal-light:#e8f4f3;
+  --yellow:#FCBA57;
+  --yellow-light:#fff8ee;
+  --border:#E5E5E5;
+  --radius:20px;
+  --radius-sm:12px;
+  --text:#1a1a1a;
+  --muted:#6b7280;
+  --bg:#ffffff;
+}
+body{
+  font-family:'Poppins',sans-serif;
+  background:#f7f7f7;
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:2rem 1rem 4rem;
+}
+.wrap{width:100%;max-width:620px;}
+
+h1,h2,h3,.inter{font-family:'Inter',sans-serif;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ── INTRO ── */
+.intro-badge{
+  display:inline-block;
+  background:var(--teal-light);
+  color:var(--teal);
+  font-size:11px;font-weight:600;
+  letter-spacing:0.07em;text-transform:uppercase;
+  padding:5px 12px;border-radius:20px;
+  margin-bottom:1.25rem;
+}
+.intro-title{
+  font-family:'Inter',sans-serif;
+  font-size:34px;font-weight:700;
+  color:var(--teal);
+  line-height:1.15;letter-spacing:-0.5px;
+  margin-bottom:0.75rem;
+}
+.intro-sub{
+  font-size:14px;color:var(--muted);
+  line-height:1.8;margin-bottom:1.75rem;
+}
+.role-card{
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-left:4px solid var(--teal);
+  border-radius:var(--radius);
+  padding:18px 20px;
+  margin-bottom:1.5rem;
+}
+.role-label{
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--teal);font-weight:600;margin-bottom:5px;
+}
+.role-title{
+  font-family:'Inter',sans-serif;
+  font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;
+}
+.role-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+
+.comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.75rem;}
+.comp-pill{
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+}
+.cp-dot{width:10px;height:10px;border-radius:50%;margin-bottom:8px;}
+.cp-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--text);}
+.cp-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5;}
+
+.btn-primary{
+  display:block;width:100%;padding:14px;
+  background:var(--yellow);border:none;
+  border-radius:var(--radius);
+  font-family:'Poppins',sans-serif;
+  font-size:15px;font-weight:600;color:#fff;
+  cursor:pointer;letter-spacing:0.1px;
+  transition:opacity 0.15s,transform 0.1s;
+}
+.btn-primary:hover{opacity:0.88;}
+.btn-primary:active{transform:scale(0.99);}
+
+.btn-secondary{
+  display:block;width:100%;padding:12px;
+  background:#fff;
+  border:1.5px solid var(--teal);
+  border-radius:var(--radius);
+  font-family:'Poppins',sans-serif;
+  font-size:14px;font-weight:600;color:var(--teal);
+  cursor:pointer;
+  transition:background 0.12s;
+}
+.btn-secondary:hover{background:var(--teal-light);}
+
+/* ── GAME HEADER ── */
+.game-header{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.dossier-counter{
+  font-size:12px;color:var(--muted);font-weight:500;
+}
+.progress-pills{display:flex;gap:5px;}
+.pp{
+  width:24px;height:5px;
+  border-radius:20px;
+  background:var(--border);
+  transition:background 0.35s;
+}
+.pp.done{background:var(--teal);}
+.pp.current{background:rgba(59,147,139,0.4);}
+
+/* ── DASHBOARD ── */
+.dashboard{
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px 18px;
+  margin-bottom:12px;
+}
+.dash-title{
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:12px;
+}
+.sh-row{display:grid;grid-template-columns:130px 1fr 32px;align-items:center;gap:10px;margin-bottom:9px;}
+.sh-row:last-child{margin-bottom:0;}
+.sh-name{font-size:12px;color:var(--text);font-weight:500;}
+.sh-track{height:6px;background:#f0f0f0;border-radius:20px;overflow:visible;position:relative;}
+.sh-fill{height:6px;border-radius:20px;transition:width 0.7s cubic-bezier(0.4,0,0.2,1),background 0.5s;position:relative;}
+.sh-val{font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;}
+@keyframes shiftUp{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+.delta-badge{
+  position:absolute;right:-22px;top:-9px;
+  font-size:10px;font-weight:700;
+  animation:shiftUp 1.4s ease forwards;
+  pointer-events:none;
+}
+
+/* ── DOSSIER CARD ── */
+.dossier-card{
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px;
+  margin-bottom:0;
+}
+.dossier-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.dossier-tag{
+  font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;
+  padding:4px 11px;border-radius:20px;
+}
+.dossier-tension{
+  font-size:11px;color:var(--muted);
+  display:flex;align-items:center;gap:4px;
+}
+.dossier-title{
+  font-family:'Inter',sans-serif;
+  font-size:19px;font-weight:700;
+  color:var(--teal);line-height:1.3;margin-bottom:10px;
+}
+.dossier-body{
+  font-size:13px;color:var(--muted);
+  line-height:1.85;margin-bottom:0;
+}
+.dossier-divider{
+  border:none;border-top:1.5px solid var(--border);margin:16px 0;
+}
+.who-watching{
+  font-size:11px;color:var(--muted);margin-bottom:14px;
+  display:flex;align-items:flex-start;gap:7px;line-height:1.6;
+}
+.ww-icon{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.ww-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
+
+.choices-heading{
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:10px;
+}
+.choice-btn{
+  width:100%;text-align:left;
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 16px;margin-bottom:8px;
+  cursor:pointer;font-family:'Poppins',sans-serif;
+  display:flex;align-items:flex-start;gap:12px;
+  transition:border-color 0.12s,background 0.12s;
+}
+.choice-btn:hover:not(:disabled){
+  border-color:var(--teal);
+  background:var(--teal-light);
+}
+.choice-btn:disabled{cursor:default;}
+.choice-btn.selected{
+  border-color:var(--teal);border-width:2px;
+  background:var(--teal-light);
+}
+.choice-btn.faded{opacity:0.28;}
+.cb-letter{
+  width:22px;height:22px;flex-shrink:0;
+  border-radius:6px;
+  border:1.5px solid var(--border);
+  background:#f7f7f7;
+  font-size:11px;font-weight:700;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+  transition:background 0.12s,border-color 0.12s,color 0.12s;
+}
+.choice-btn.selected .cb-letter{
+  background:var(--teal);border-color:var(--teal);color:#fff;
+}
+.cb-text{font-size:13px;color:var(--text);line-height:1.65;}
+
+/* ── FEEDBACK ── */
+.feedback-box{
+  background:var(--yellow-light);
+  border:1.5px solid #f5d28a;
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  margin-top:12px;
+  display:none;
+}
+.fb-eyebrow{
+  font-size:10px;letter-spacing:0.09em;text-transform:uppercase;
+  color:var(--yellow);font-weight:700;margin-bottom:5px;
+}
+.fb-text{font-size:13px;color:#5a4b2a;line-height:1.75;}
+.ripple-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
+.ripple-pill{
+  font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;
+}
+.ripple-pos{background:#e6f4ef;color:#2a7a6e;}
+.ripple-neg{background:#fdecea;color:#c0392b;}
+.ripple-neu{background:#f0f0f0;color:var(--muted);}
+
+.next-btn-wrap{margin-top:14px;display:none;}
+
+/* ── RESULT ── */
+.result-badge{
+  display:inline-block;
+  background:var(--teal-light);color:var(--teal);
+  font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;
+  padding:5px 12px;border-radius:20px;margin-bottom:10px;
+  margin-top:0.5rem;
+}
+.result-title{
+  font-family:'Inter',sans-serif;
+  font-size:26px;font-weight:700;color:var(--teal);
+  line-height:1.2;margin-bottom:0.5rem;letter-spacing:-0.3px;
+}
+.result-desc{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:1.5rem;}
+.result-board{
+  background:#fff;border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:12px;
+}
+.rb-title{
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:14px;
+}
+.radar-wrap{position:relative;height:240px;margin-bottom:16px;}
+.comp-row{margin-bottom:13px;}
+.comp-header{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+.cn{color:var(--text);font-weight:500;}
+.cpct{color:var(--muted);}
+.comp-track{height:5px;background:#f0f0f0;border-radius:20px;overflow:hidden;}
+.comp-fill{height:5px;border-radius:20px;transition:width 1.1s cubic-bezier(0.2,0,0.2,1);}
+.sh-final-row{display:grid;grid-template-columns:130px 1fr 32px;align-items:center;gap:10px;margin-bottom:8px;}
+.divider{border:none;border-top:1.5px solid var(--border);margin:1.25rem 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── INTRO ── -->
+<div id="s-intro" class="screen active">
+  <div class="intro-badge">Competentie: politiek-bestuurlijke sensitiviteit</div>
+  <div class="intro-title">Het Dossier</div>
+  <div class="intro-sub">Zes dossiers. Vijf stakeholders die toekijken. Je werkt niet onder tijdsdruk, maar elke keuze heeft politieke gevolgen die doorwerken in wat daarna komt.</div>
+
+  <div class="role-card">
+    <div class="role-label">Jouw positie</div>
+    <div class="role-title">Algemeen directeur · Middelgrote organisatie</div>
+    <div class="role-desc">Je bent zes maanden in functie. De organisatie kent interne spanning: een ambitieuze RvB, een kritische OR, en een MT dat nog niet als team functioneert. Jij bepaalt de koers.</div>
+  </div>
+
+  <div class="comp-grid">
+    <div class="comp-pill">
+      <div class="cp-dot" style="background:var(--yellow);"></div>
+      <div class="cp-name">Strategisch oordeel</div>
+      <div class="cp-desc">Juiste keuze voor de lange termijn</div>
+    </div>
+    <div class="comp-pill">
+      <div class="cp-dot" style="background:var(--teal);"></div>
+      <div class="cp-name">Politieke sensitiviteit</div>
+      <div class="cp-desc">Navigeren tussen belangen</div>
+    </div>
+    <div class="comp-pill">
+      <div class="cp-dot" style="background:#e87575;"></div>
+      <div class="cp-name">Besluitvaardigheid</div>
+      <div class="cp-desc">Kiezen als het ongemakkelijk is</div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="startGame()">Dossiers openen →</button>
+</div>
+
+<!-- ── GAME ── -->
+<div id="s-game" class="screen">
+  <div class="game-header">
+    <div class="dossier-counter">Dossier <span id="g-num">1</span> van 6</div>
+    <div class="progress-pills" id="prog-pills"></div>
+  </div>
+
+  <div class="dashboard">
+    <div class="dash-title">Stakeholder vertrouwen</div>
+    <div id="stakeholders"></div>
+  </div>
+
+  <div class="dossier-card">
+    <div class="dossier-meta">
+      <span class="dossier-tag" id="d-tag"></span>
+      <span class="dossier-tension" id="d-tension"></span>
+    </div>
+    <div class="dossier-title" id="d-title"></div>
+    <div class="dossier-body" id="d-body"></div>
+    <hr class="dossier-divider">
+    <div class="who-watching">
+      <div class="ww-icon"><div class="ww-dot"></div></div>
+      <span id="d-watching"></span>
+    </div>
+    <div class="choices-heading">Wat doe jij?</div>
+    <div id="choices-area"></div>
+    <div class="feedback-box" id="feedback-box">
+      <div class="fb-eyebrow">Gevolg</div>
+      <div class="fb-text" id="fb-text"></div>
+      <div class="ripple-list" id="ripple-list"></div>
+    </div>
+    <div class="next-btn-wrap" id="next-btn-wrap">
+      <button class="btn-primary" id="next-btn">Volgend dossier →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESULT ── -->
+<div id="s-result" class="screen">
+  <div class="result-badge">Jouw bestuurlijk profiel</div>
+  <div class="result-title" id="r-title"></div>
+  <div class="result-desc" id="r-desc"></div>
+
+  <div class="result-board">
+    <div class="rb-title">Eindstand stakeholders</div>
+    <div id="stakeholder-final"></div>
+
+    <hr style="border:none;border-top:1.5px solid var(--border);margin:14px 0;">
+
+    <div class="rb-title">Competentieprofiel</div>
+    <div class="radar-wrap"><canvas id="rchart"></canvas></div>
+
+    <div class="comp-row">
+      <div class="comp-header"><span class="cn">Strategisch oordeel</span><span class="cpct" id="pct-so"></span></div>
+      <div class="comp-track"><div class="comp-fill" id="cf-so" style="width:0%;background:var(--yellow);"></div></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-header"><span class="cn">Politieke sensitiviteit</span><span class="cpct" id="pct-ps"></span></div>
+      <div class="comp-track"><div class="comp-fill" id="cf-ps" style="width:0%;background:var(--teal);"></div></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-header"><span class="cn">Besluitvaardigheid</span><span class="cpct" id="pct-bv"></span></div>
+      <div class="comp-track"><div class="comp-fill" id="cf-bv" style="width:0%;background:#e87575;"></div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <button class="btn-secondary" onclick="restart()">Opnieuw spelen</button>
+</div>
+
+</div>
+
+<script>
+const STAKEHOLDERS=[
+  {id:'rvb',name:'Raad van Bestuur',color:'#FCBA57'},
+  {id:'mt', name:'Management Team', color:'#3B938B'},
+  {id:'or', name:'OR / Vakbond',    color:'#7ba3d4'},
+  {id:'kl', name:'Sleutelklant',    color:'#b08ecf'},
+  {id:'med',name:'Media / Publiek', color:'#a0b8a0'},
+];
+
+const DOSSIERS=[
+  {id:1,tag:'PERSONEEL',tagColor:'#c87c1a',tagBg:'#fff3e0',
+   tension:'Loyaliteit vs. prestatie',
+   title:'De topperformer die het team vergiftigt',
+   body:'Je commercieel directeur realiseert 35% van de omzet. Hij is ook de reden dat drie talentvolle medewerkers de afgelopen zes maanden vertrokken. Jouw HR-directeur legt het patroon op tafel. De RvB weet nog van niets.',
+   watching:'De RvB kijkt naar je besluitvaardigheid. Het MT kijkt of je hun belang beschermt.',
+   choices:[
+     {letter:'A',text:'Spreek hem direct aan op gedrag, met een verbetertraject en heldere consequentie als het niet verandert.',
+      fb:'Krachtig en consistent. Het MT ziet dat je ingrijpt, ook als het pijn doet. De RvB zal dit oordelen op uitkomst, niet op intentie.',
+      ripples:[{sh:'mt',d:+14,l:'MT +14'},{sh:'or',d:+8,l:'OR +8'},{sh:'rvb',d:+4,l:'RvB +4'}],scores:{so:3,ps:2,bv:3}},
+     {letter:'B',text:'Herpositioneer hem intern naar een solorol zonder leidinggevende verantwoordelijkheid.',
+      fb:'Slim. Je behoudt de omzet en elimineert de schade. Maar hij weet wat er is gebeurd, en de RvB leest de herstructurering vroeg of laat.',
+      ripples:[{sh:'mt',d:+7,l:'MT +7'},{sh:'rvb',d:-5,l:'RvB -5'},{sh:'kl',d:+5,l:'Klant +5'}],scores:{so:2,ps:3,bv:2}},
+     {letter:'C',text:'Wacht een kwartaal af en monitor de situatie.',
+      fb:'Je koopt tijd, maar het team verliest vertrouwen. Wie weggaat als er niet wordt ingegrepen, lost de situatie voor je op. Dat is geen strategie.',
+      ripples:[{sh:'mt',d:-10,l:'MT -10'},{sh:'or',d:-8,l:'OR -8'},{sh:'rvb',d:+3,l:'RvB +3'}],scores:{so:1,ps:1,bv:0}},
+     {letter:'D',text:'Ontslag. Je wilt niet dat de omzetafhankelijkheid van één persoon de norm wordt.',
+      fb:'Gedurfd en principieel. Je kiest de organisatie boven de korte-termijncijfers. De RvB schrikt, maar je stuurt een onmiskenbaar signaal.',
+      ripples:[{sh:'mt',d:+8,l:'MT +8'},{sh:'or',d:+10,l:'OR +10'},{sh:'rvb',d:-12,l:'RvB -12'},{sh:'kl',d:-8,l:'Klant -8'}],scores:{so:3,ps:1,bv:3}},
+   ]},
+  {id:2,tag:'GOVERNANCE',tagColor:'#1a5c7a',tagBg:'#e8f4fb',
+   tension:'Transparantie vs. loyaliteit',
+   title:'De RvB-voorzitter die de grens overschrijdt',
+   body:'Twee MT-leden melden onafhankelijk van elkaar dat de RvB-voorzitter hen rechtstreeks heeft aangestuurd, buiten jou om. Hij rechtvaardigt het als "nauwe betrokkenheid". De statuten zijn helder: dat is niet zijn rol.',
+   watching:'Het MT observeert of jij je mandaat verdedigt. De RvB houdt de onderlinge verhoudingen in de gaten.',
+   choices:[
+     {letter:'A',text:'Bespreek het direct met de voorzitter in een besloten gesprek. Helder, zonder publiek te maken.',
+      fb:'Volwassen en de juiste eerste stap. Je beschermt je mandaat zonder te escaleren. Het MT merkt dat je het adresseert.',
+      ripples:[{sh:'rvb',d:-5,l:'RvB -5'},{sh:'mt',d:+12,l:'MT +12'}],scores:{so:3,ps:3,bv:2}},
+     {letter:'B',text:'Agendaset het formeel in de RvB: de taakverdeling moet helder worden vastgelegd.',
+      fb:'Structureel correct, maar je maakt het publiek voor de gehele raad. Dat leest als een aanval en kost je politiek kapitaal.',
+      ripples:[{sh:'rvb',d:-12,l:'RvB -12'},{sh:'mt',d:+8,l:'MT +8'},{sh:'or',d:+5,l:'OR +5'}],scores:{so:2,ps:1,bv:3}},
+     {letter:'C',text:'Leg het naast je neer. De voorzitter heeft ervaring en zijn betrokkenheid heeft voordelen.',
+      fb:'Je koopt vrede, maar geeft je mandaat weg. Het MT trekt conclusies over wie hier echt de baas is.',
+      ripples:[{sh:'rvb',d:+8,l:'RvB +8'},{sh:'mt',d:-14,l:'MT -14'}],scores:{so:0,ps:2,bv:0}},
+     {letter:'D',text:'Informeer de rest van de RvB en verzoek een formele uitleg van de voorzitter.',
+      fb:'Je escaleert direct naar het hoogste niveau. Dit kan, maar dit is een kernbom op je relatie met de voorzitter.',
+      ripples:[{sh:'rvb',d:-18,l:'RvB -18'},{sh:'mt',d:+5,l:'MT +5'}],scores:{so:1,ps:0,bv:3}},
+   ]},
+  {id:3,tag:'STRATEGIE',tagColor:'#2a6e2a',tagBg:'#edf7ed',
+   tension:'Groei vs. draagvlak',
+   title:'De overname die alles verandert',
+   body:'De RvB wil een concurrent overnemen. De synergie-analyse is sterk op papier. Jouw CFO waarschuwt privé voor de integratierisico\'s, het doelwit heeft een totaal andere cultuur en verouderde systemen. De OR heeft gehoord dat er iets speelt.',
+   watching:'De RvB wil ambitie zien. De OR wil worden meegenomen. Je CFO wil dat je zijn signaal serieus neemt.',
+   choices:[
+     {letter:'A',text:'Steun de overname, maar bedinge een gefaseerd integratieplan en stel een risicoreview in als voorwaarde.',
+      fb:'Je combineert ambitie met realisme. De RvB krijgt haar groei, de CFO ziet zijn waarschuwingen landen.',
+      ripples:[{sh:'rvb',d:+10,l:'RvB +10'},{sh:'mt',d:+10,l:'MT +10'},{sh:'or',d:-5,l:'OR -5'}],scores:{so:3,ps:3,bv:2}},
+     {letter:'B',text:'Adviseer de RvB om de deal af te blazen. De risico\'s wegen zwaarder dan de synergie.',
+      fb:'Principieel en onderbouwd. Maar de RvB heeft hier al op ingezet, je gaat frictie krijgen, ook als je achteraf gelijk krijgt.',
+      ripples:[{sh:'rvb',d:-15,l:'RvB -15'},{sh:'mt',d:+8,l:'MT +8'},{sh:'or',d:+10,l:'OR +10'}],scores:{so:3,ps:1,bv:3}},
+     {letter:'C',text:'Informeer de OR proactief en vraag hun advies, dat versterkt het draagvlak.',
+      fb:'Goede relatiepolitiek richting OR. Maar je neemt nog geen positie in, de RvB leest dat als aarzelend leiderschap.',
+      ripples:[{sh:'or',d:+14,l:'OR +14'},{sh:'rvb',d:-8,l:'RvB -8'},{sh:'mt',d:+4,l:'MT +4'}],scores:{so:1,ps:3,bv:1}},
+     {letter:'D',text:'Vraag een extern bureau om een second opinion voordat je standpunt inneemt.',
+      fb:'Prudent, maar je koopt de duurste twijfel. De RvB leest dit als onzekerheid.',
+      ripples:[{sh:'rvb',d:-7,l:'RvB -7'},{sh:'mt',d:-5,l:'MT -5'}],scores:{so:1,ps:2,bv:1}},
+   ]},
+  {id:4,tag:'INTEGRITEIT',tagColor:'#6a2fa0',tagBg:'#f5edfb',
+   tension:'Ethiek vs. relatie',
+   title:'De sleutelklant die een deal vraagt die niet klopt',
+   body:'Je grootste klant, 22% van de omzet, vraagt om een afwijking in de contractering die feitelijk een verborgen korting is voor hun eigen management. Juridisch zit het in een grijs gebied. Jouw accountmanager zegt: "Als we nee zeggen, zijn we ze kwijt."',
+   watching:'De klant test je grenzen. Intern kijkt je MT of jij principes stelt boven druk.',
+   choices:[
+     {letter:'A',text:'Weiger. Leg rustig maar helder uit waarom, en doe een legitiem alternatief aanbod.',
+      fb:'Je stelt een grens zonder de relatie te verbranden. Dit zijn de gesprekken die bepalen wat voor organisatie je bent.',
+      ripples:[{sh:'mt',d:+12,l:'MT +12'},{sh:'or',d:+8,l:'OR +8'},{sh:'kl',d:-12,l:'Klant -12'}],scores:{so:3,ps:2,bv:3}},
+     {letter:'B',text:'Ga akkoord. De klantrelatie is strategisch te waardevol om te riskeren.',
+      fb:'Je behoudt de klant, voorlopig. Maar je hebt een precedent gezet. Wanneer vraagt hij de volgende gunst?',
+      ripples:[{sh:'kl',d:+15,l:'Klant +15'},{sh:'mt',d:-10,l:'MT -10'},{sh:'or',d:-12,l:'OR -12'}],scores:{so:0,ps:1,bv:1}},
+     {letter:'C',text:'Laat je accountmanager onderhandelen over een middenweg en houd jezelf er buiten.',
+      fb:'Je vermijdt de beslissing. De accountmanager heeft geen mandaat voor dit gesprek, je schuift het probleem door.',
+      ripples:[{sh:'mt',d:-8,l:'MT -8'},{sh:'kl',d:-5,l:'Klant -5'}],scores:{so:1,ps:1,bv:0}},
+     {letter:'D',text:'Escaleer intern: laat compliance en legal een formele positie innemen voor je antwoordt.',
+      fb:'Zorgvuldig, en correct voor een compliance-gevoelig bedrijf. Maar de klant leest dit als onwil.',
+      ripples:[{sh:'kl',d:-18,l:'Klant -18'},{sh:'or',d:+6,l:'OR +6'},{sh:'mt',d:+5,l:'MT +5'}],scores:{so:2,ps:1,bv:2}},
+   ]},
+  {id:5,tag:'LEIDERSCHAP',tagColor:'#5a5d6b',tagBg:'#f4f4f6',
+   tension:'Vertrouwen vs. prestatie',
+   title:'De loyale directeur die het niet meer aankan',
+   body:'Je HR-directeur is er altijd geweest, 14 jaar in dienst, jouw eerste supporter. Maar de organisatie is harder en sneller geworden. Ze mist deadlines, vermijdt moeilijke gesprekken en haar team loopt leeg. Iedereen weet het, niemand zegt het.',
+   watching:'Het MT kijkt of jij moeilijke besluiten neemt ook als ze pijn doen.',
+   choices:[
+     {letter:'A',text:'Voer een eerlijk gesprek: je ziet de situatie, je waardeert haar, en je vraagt wat ze zelf wil.',
+      fb:'Menselijk leiderschap. Je geeft haar agency, en waarschijnlijk de opening om zelf een uitweg te kiezen.',
+      ripples:[{sh:'mt',d:+10,l:'MT +10'},{sh:'or',d:+8,l:'OR +8'},{sh:'rvb',d:+5,l:'RvB +5'}],scores:{so:3,ps:3,bv:3}},
+     {letter:'B',text:'Reorganiseer haar rol weg: maak haar positie smaller zodat ze het wel aankan.',
+      fb:'Je vermijdt het echte gesprek. Ze weet wat er is gebeurd. Het team ook.',
+      ripples:[{sh:'mt',d:-8,l:'MT -8'},{sh:'or',d:-6,l:'OR -6'},{sh:'rvb',d:-5,l:'RvB -5'}],scores:{so:1,ps:2,bv:1}},
+     {letter:'C',text:'Start formeel verbetertraject met HR-ondersteuning van buiten.',
+      fb:'Correct en gedocumenteerd. Maar iedereen leest dit als een aanloop naar ontslag.',
+      ripples:[{sh:'rvb',d:+6,l:'RvB +6'},{sh:'or',d:-5,l:'OR -5'},{sh:'mt',d:+4,l:'MT +4'}],scores:{so:2,ps:1,bv:2}},
+     {letter:'D',text:'Geef haar nog een half jaar. Ze verdient de kans om te bewijzen dat het tijdelijk is.',
+      fb:'Loyaal, maar de rest van het MT betaalt de prijs. Jij stelt de organisatie achter de persoon.',
+      ripples:[{sh:'mt',d:-12,l:'MT -12'},{sh:'or',d:+5,l:'OR +5'},{sh:'rvb',d:-7,l:'RvB -7'}],scores:{so:0,ps:1,bv:0}},
+   ]},
+  {id:6,tag:'CRISIS',tagColor:'#b02020',tagBg:'#fdecea',
+   tension:'Controle vs. openheid',
+   title:'Het medialek',
+   body:'Een journalist belt je woordvoerder: hij heeft interne documenten over de ontslagplannen die volgende maand officieel worden. Morgen gaat hij publiceren. De OR weet het officiële nieuws nog niet. De RvB wil dat je het ontkent.',
+   watching:'Iedereen kijkt, tegelijkertijd. Dit is de definitieve test van je bestuurlijk leiderschap.',
+   choices:[
+     {letter:'A',text:'Weiger te ontkennen. Informeer de OR vanavond nog, bevestig morgen vroeg aan de media voor de journalist publiceert.',
+      fb:'Je neemt de regie terug door zelf het nieuws te zijn. De OR voelt respect. De RvB is woedend op het moment, maar dit is het enige houdbare pad.',
+      ripples:[{sh:'or',d:+18,l:'OR +18'},{sh:'med',d:+15,l:'Media +15'},{sh:'rvb',d:-15,l:'RvB -15'},{sh:'mt',d:+8,l:'MT +8'}],scores:{so:3,ps:2,bv:3}},
+     {letter:'B',text:'Volg de RvB. Ontken de plannen en koop tijd tot de officiële aankondiging.',
+      fb:'De ontkenning staat morgen naast de gelekte documenten. Je geloofwaardigheid is weg.',
+      ripples:[{sh:'rvb',d:+8,l:'RvB +8'},{sh:'med',d:-20,l:'Media -20'},{sh:'or',d:-15,l:'OR -15'},{sh:'mt',d:-8,l:'MT -8'}],scores:{so:0,ps:1,bv:1}},
+     {letter:'C',text:'Geen commentaar. Zeg niets, en geef de journalist niets om op te bouwen.',
+      fb:'"Geen commentaar" is de bevestiging. De journalist publiceert toch. Je hebt geen verhaal, geen timing, geen regie.',
+      ripples:[{sh:'med',d:-10,l:'Media -10'},{sh:'or',d:-8,l:'OR -8'},{sh:'rvb',d:+3,l:'RvB +3'}],scores:{so:1,ps:1,bv:1}},
+     {letter:'D',text:'Onderhandel met de journalist: exclusief interview in ruil voor een dag uitstel zodat je de OR eerst kunt informeren.',
+      fb:'Onorthodox en risicovol, maar het kan werken. Je behoudt enige regie. De RvB zal dit nooit vooraf goedkeuren.',
+      ripples:[{sh:'med',d:+8,l:'Media +8'},{sh:'or',d:+10,l:'OR +10'},{sh:'rvb',d:-10,l:'RvB -10'},{sh:'mt',d:+5,l:'MT +5'}],scores:{so:2,ps:3,bv:2}},
+   ]},
+];
+
+// ── STATE ──────────────────────────────
+let cur=0, picked=null;
+let trust={}, scores={so:0,ps:0,bv:0}, maxScores={so:0,ps:0,bv:0};
+
+// ── START ──────────────────────────────
+function startGame(){
+  cur=0; picked=null;
+  scores={so:0,ps:0,bv:0}; maxScores={so:0,ps:0,bv:0};
+  STAKEHOLDERS.forEach(s=>trust[s.id]=65);
+  DOSSIERS.forEach(d=>{
+    let mx={so:0,ps:0,bv:0};
+    d.choices.forEach(c=>{mx.so=Math.max(mx.so,c.scores.so);mx.ps=Math.max(mx.ps,c.scores.ps);mx.bv=Math.max(mx.bv,c.scores.bv);});
+    maxScores.so+=mx.so; maxScores.ps+=mx.ps; maxScores.bv+=mx.bv;
+  });
+  buildPills(); renderDashboard();
+  show('s-game'); renderDossier(0);
+}
+
+function buildPills(){
+  const el=document.getElementById('prog-pills'); el.innerHTML='';
+  DOSSIERS.forEach((_,i)=>{const d=document.createElement('div');d.className='pp';d.id='pp-'+i;el.appendChild(d);});
+  document.getElementById('pp-0').classList.add('current');
+}
+function updatePill(i){
+  document.getElementById('pp-'+i).classList.remove('current');
+  document.getElementById('pp-'+i).classList.add('done');
+  if(i+1<DOSSIERS.length) document.getElementById('pp-'+(i+1)).classList.add('current');
+}
+
+// ── DASHBOARD ─────────────────────────
+function renderDashboard(){
+  const el=document.getElementById('stakeholders'); el.innerHTML='';
+  STAKEHOLDERS.forEach(s=>{
+    const v=Math.round(trust[s.id]);
+    const bc=barColor(s,v);
+    el.innerHTML+=`<div class="sh-row">
+      <div class="sh-name">${s.name}</div>
+      <div class="sh-track"><div class="sh-fill" id="shf-${s.id}" style="width:${v}%;background:${bc};"></div></div>
+      <div class="sh-val" id="shv-${s.id}">${v}</div>
+    </div>`;
+  });
+}
+function barColor(s,v){return v<30?'#e87575':v<50?'#FCBA57':s.color;}
+
+async function animateTrust(sh,delta){
+  return new Promise(res=>{
+    trust[sh]=Math.max(5,Math.min(100,trust[sh]+delta));
+    const v=Math.round(trust[sh]);
+    const s=STAKEHOLDERS.find(x=>x.id===sh);
+    const bc=barColor(s,v);
+    const fill=document.getElementById('shf-'+sh);
+    const valEl=document.getElementById('shv-'+sh);
+    if(fill){fill.style.width=v+'%';fill.style.background=bc;}
+    if(valEl) valEl.textContent=v;
+    if(fill){
+      const badge=document.createElement('span');
+      badge.className='delta-badge';
+      badge.style.color=delta>0?'#2a7a6e':'#c0392b';
+      badge.textContent=(delta>0?'+':'')+delta;
+      fill.appendChild(badge);
+      setTimeout(()=>badge.remove(),1500);
+    }
+    setTimeout(res,130);
+  });
+}
+
+// ── DOSSIER ───────────────────────────
+function renderDossier(idx){
+  const d=DOSSIERS[idx]; picked=null;
+  document.getElementById('g-num').textContent=idx+1;
+  const tag=document.getElementById('d-tag');
+  tag.textContent=d.tag; tag.style.color=d.tagColor; tag.style.background=d.tagBg;
+  tag.style.border=`1.5px solid ${d.tagColor}44`;
+  document.getElementById('d-tension').innerHTML=`⚖ ${d.tension}`;
+  document.getElementById('d-title').textContent=d.title;
+  document.getElementById('d-body').textContent=d.body;
+  document.getElementById('d-watching').textContent=d.watching;
+  const area=document.getElementById('choices-area'); area.innerHTML='';
+  d.choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn'; btn.id='cb-'+i;
+    btn.innerHTML=`<div class="cb-letter">${c.letter}</div><div class="cb-text">${c.text}</div>`;
+    btn.onclick=()=>pickChoice(idx,i);
+    area.appendChild(btn);
+  });
+  document.getElementById('feedback-box').style.display='none';
+  document.getElementById('next-btn-wrap').style.display='none';
+  const nb=document.getElementById('next-btn');
+  nb.textContent=idx<DOSSIERS.length-1?'Volgend dossier →':'Bekijk je bestuurlijk profiel →';
+  nb.onclick=idx<DOSSIERS.length-1?goNext:showResult;
+}
+
+async function pickChoice(dIdx,cIdx){
+  if(picked!==null) return;
+  picked=cIdx;
+  const c=DOSSIERS[dIdx].choices[cIdx];
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{
+    if(i===cIdx) b.classList.add('selected'); else b.classList.add('faded');
+    b.disabled=true;
+  });
+  scores.so+=c.scores.so; scores.ps+=c.scores.ps; scores.bv+=c.scores.bv;
+  for(const r of c.ripples) await animateTrust(r.sh,r.d);
+  document.getElementById('fb-text').textContent=c.fb;
+  document.getElementById('ripple-list').innerHTML=c.ripples.map(r=>{
+    const cls=r.d>0?'ripple-pos':r.d<0?'ripple-neg':'ripple-neu';
+    return `<span class="ripple-pill ${cls}">${r.l}</span>`;
+  }).join('');
+  document.getElementById('feedback-box').style.display='block';
+  document.getElementById('next-btn-wrap').style.display='block';
+  updatePill(dIdx);
+}
+
+function goNext(){cur++;renderDossier(cur);}
+
+// ── RESULT ────────────────────────────
+function showResult(){
+  show('s-result');
+  const so=pct(scores.so,maxScores.so);
+  const ps=pct(scores.ps,maxScores.ps);
+  const bv=pct(scores.bv,maxScores.bv);
+  const top=[[so,'Strategisch oordeel'],[ps,'Politieke sensitiviteit'],[bv,'Besluitvaardigheid']].sort((a,b)=>b[0]-a[0])[0][1];
+  const profiles={
+    'Strategisch oordeel':'Je maakt de juiste afweging voor de lange termijn, ook als dat op korte termijn pijn doet. Je denkt in systemen, niet in incidenten. Dat is de kern van bestuurlijk leiderschap.',
+    'Politieke sensitiviteit':'Je leest de kamer. Je weet welke belangen er spelen en hoe je ze in beweging houdt zonder de verkeerde te mobiliseren. Zeldzame vaardigheid op directieniveau.',
+    'Besluitvaardigheid':'Je besluit. Als anderen aarzelen of ontwijken, neem jij positie. Dat schept duidelijkheid, en soms vijanden. Maar het bouwt vertrouwen bij wie er toe doet.'
+  };
+  document.getElementById('r-title').textContent=top;
+  document.getElementById('r-desc').textContent=profiles[top];
+
+  // stakeholder final
+  const sf=document.getElementById('stakeholder-final'); sf.innerHTML='';
+  STAKEHOLDERS.forEach(s=>{
+    const v=Math.round(trust[s.id]);
+    const bc=barColor(s,v);
+    sf.innerHTML+=`<div class="sh-final-row">
+      <div class="sh-name" style="font-size:12px;">${s.name}</div>
+      <div class="sh-track" style="height:5px;"><div style="height:5px;border-radius:20px;width:${v}%;background:${bc};transition:width 0.9s ease;"></div></div>
+      <div class="sh-val">${v}</div>
+    </div>`;
+  });
+
+  setTimeout(()=>{
+    ['so','ps','bv'].forEach((k,i)=>{
+      const v=[so,ps,bv][i];
+      document.getElementById('cf-'+k).style.width=v+'%';
+      document.getElementById('pct-'+k).textContent=v+'%';
+    });
+    new Chart(document.getElementById('rchart'),{
+      type:'radar',
+      data:{
+        labels:['Strategisch oordeel','Politieke sensitiviteit','Besluitvaardigheid'],
+        datasets:[{
+          data:[so,ps,bv],
+          backgroundColor:'rgba(59,147,139,0.1)',
+          borderColor:'#3B938B',
+          borderWidth:2,
+          pointBackgroundColor:'#3B938B',
+          pointRadius:5,
+          pointHoverRadius:7,
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{r:{
+          min:0,max:100,
+          ticks:{stepSize:25,color:'#9ca3af',font:{size:10},backdropColor:'transparent'},
+          grid:{color:'rgba(0,0,0,0.07)'},
+          pointLabels:{color:'#374151',font:{size:12,family:'Poppins'}},
+          angleLines:{color:'rgba(0,0,0,0.07)'}
+        }}
+      }
+    });
+  },100);
+}
+
+function pct(e,m){return m>0?Math.min(100,Math.round(e/m*100)):0;}
+function show(id){['s-intro','s-game','s-result'].forEach(s=>{document.getElementById(s).className='screen'+(s===id?' active':'');});}
+function restart(){show('s-intro');}
+</script>
+</body>
+</html>
